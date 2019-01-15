@@ -134,5 +134,7 @@ def main(argv) :
     Spell_checker(fname)
     F_temp = open("temp.txt", "r")
     print(F_temp.readline())
-    
+    # os.remove("OutputImg.txt")
+    # os.remove("temp.txt")
+
 main(sys.argv[1:])
