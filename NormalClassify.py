@@ -1,6 +1,7 @@
 import cv2
 import sys
 import os
+import json
 import imutils
 import numpy as np
 import subprocess
@@ -67,47 +68,20 @@ def Spell_checker(name):
                 # print('เย็น')
                 isEatDinner = True
         line = f.readline()
-        JSON_Creator(isPeriod, isEatBefore, isEatBreakfast, isEatLunch, isEatDinner, isEatBedTime, isRoutine, periodHour)
+    cvt_to_JSON(isPeriod, isEatBefore, isEatBreakfast, isEatLunch, isEatDinner, isEatBedTime, isRoutine, periodHour)
 
-def JSON_Creator(_isPeriod, _isEatBefore,_isEatBreakfast, _isEatLunch, _isEatDinner, _isEatBedTime, _isRoutine, _periodHour) :
-    temp = open("temp.txt", "w")
-    temp.write("{")
-    if _isPeriod == False :
-        temp.write ("\"" + "isPeriod" + "\"" + " : " + "false ,")
-
-        # "Data" : {
-        temp.write ("\"" + "Data" + "\"" + " : " + "{")
-
-        if _isEatBefore :
-            temp.write ("\"" + "isEatBefore" + "\""+ " : " + "true ,")
-        else : temp.write ("\"" + "isEatBefore" + "\""+ " : " + "false ,")
-        if _isEatBreakfast :
-            temp.write ("\"" + "isEatBreakfast" + "\""+ " : " + "true ,")
-        else : temp.write ("\"" + "isEatBreakfast" + "\""+ " : " + "false ,")
-        if _isEatLunch :
-            temp.write ("\"" + "isEatLunch" + "\""+ " : " + "true ,")
-        else : temp.write ("\"" + "isEatLunch" + "\""+ " : " + "fasle ,")
-        if _isEatDinner :
-            temp.write ("\"" + "isEatDinner" + "\""+ " : " + "true ,")
-        else : temp.write ("\"" + "isEatDinner" + "\""+ " : " + "fasle ,")
-        if _isEatBedTime :
-            temp.write ("\"" + "isEatBedTIme" + "\""+ " : " + "true")
-        else : temp.write ("\"" + "isEatBedTIme" + "\""+ " : " + "false")
-
-        temp.write("}")
-        
-    if _isPeriod == True : 
-        temp.write("\"" + "isPeriod" + "\"" + " : " + "ture ,")
-        
-        # "Data" : {
-        temp.write ("\"" + "Data" + "\"" + " : " + "{")
-        if isRoutine :
-            temp.write("\"" + "isRoutine" + "\"" + " : " + "true,")
-        else : temp.write("\"" + "isRoutine" + "\"" + " : " + "false,")
-        temp.write("\"" + "PeriodHour" + "\"" + " : " + str(periodHour))
-        temp.write("}")
-
-    temp.write("}")
+def cvt_to_JSON(_isPeriod, _isEatBefore,_isEatBreakfast, _isEatLunch, _isEatDinner, _isEatBedTime, _isRoutine, _periodHour) :
+    output = {}
+    output["isPeriod"] = _isPeriod
+    data = {}
+    data["isEatBefore"] = _isEatBefore
+    data["isEatBreakfast"] = _isEatBreakfast
+    data["isEatLunch"] = _isEatLunch
+    data["isEatDinner"] = _isEatDinner
+    data["isEatBedTime"] = _isEatBedTime
+    output["data"] = data
+    conv_json = json.dumps(output, ensure_ascii = False)
+    print(conv_json)
 
 def main(argv) :
     image = cv2.imread(argv[0]) 
@@ -132,8 +106,6 @@ def main(argv) :
                 f.write(text_from_image_file( str(w*h) + ".png",'tha'))
                 os.remove( str(w*h) + ".png")
     Spell_checker(fname)
-    F_temp = open("temp.txt", "r")
-    print(F_temp.readline())
     # os.remove("OutputImg.txt")
     # os.remove("temp.txt")
 
