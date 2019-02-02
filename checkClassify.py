@@ -83,8 +83,8 @@ def main(argv) :
         for cnt in contours[1:] :
             x, y, w, h = cv2.boundingRect(cnt)
             # if (h / w < 0.7 and h * w > 500) :
-            # if h > 30 and h < 50 :
-            if h * w > 100000 :
+            if h > 30 and h < 50 :
+            # if h * w > 100000 :
                 cv2.rectangle(temp,(x,y),(x+w,y+h),(0,0,255),2)
                 roi = image[y:y+h, x:x+w]
                 cv2.imwrite( str(w*h) + ".png" , roi)

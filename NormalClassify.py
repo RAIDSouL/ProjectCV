@@ -15,6 +15,8 @@ str2 = "เช้า"
 str3 = "กลางวัน"
 str4 = "เย็น"
 
+datalists = []
+
 def text_from_image_file(image_name,lang):
     output_name = "OutputImg"
     return_code = subprocess.call(['tesseract',image_name,output_name,'-l',lang,'-c','preserve_interword_spaces=1 --tessdata-dir ./tessdata_best/'],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -103,13 +105,15 @@ def main(argv) :
                 # cv2.rectangle(image,(x,y),(x+w,y+h),(0,0,255),2)
                 roi = image[y:y+h, x:x+w]
                 cv2.imwrite( str(w*h) + ".png" , roi)
-                f.write(text_from_image_file( str(w*h) + ".png",'tha'))
-                line = f.readline()
-                if(line.find(strA1) > 0 or line.find(strA2) > 0 ) :
-                    cv2.rectangle(image,(x,y),(x+w,y+h),(0,0,255),2)
+                # f.write(text_from_image_file( str(w*h) + ".png",'tha'))
+                datalists.append(text_from_image_file( str(w*h) + ".png",'tha'))
+                # line = f.readline()
+                # if(line.find(strA1) > 0 or line.find(strA2) > 0 ) :
+                    # cv2.rectangle(image,(x,y),(x+w,y+h),(0,0,255),2)
                 os.remove( str(w*h) + ".png")
-    Spell_checker(fname)
-    cv2.show("image",image)
+    # Spell_checker(fname)
+    # cv2.show("image",image)
+    print(datalists)
     # os.remove("OutputImg.txt")
     # os.remove("temp.txt")
 
