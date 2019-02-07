@@ -1,5 +1,6 @@
 import cv2
 import sys
+import re
 import os
 import json
 import imutils
@@ -15,11 +16,66 @@ str2 = "เช้า"
 str3 = "กลางวัน"
 str4 = "เย็น"
 
+datalists = []
+
+pattern = re.compile(r"[^\u0E00-\u0E7Fa-zA-Z' ]|^'|'$|''")
+
 def text_from_image_file(image_name,lang):
     output_name = "OutputImg"
     return_code = subprocess.call(['tesseract',image_name,output_name,'-l',lang,'-c','preserve_interword_spaces=1 --tessdata-dir ./tessdata_best/'],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     d = open(output_name+'.txt','r',encoding='utf-8')
-    return d.read()
+    temp = d.read()
+    char_to_remove = re.findall(pattern, temp)
+    list_with_char_removed = [char for char in temp if not char in char_to_remove]
+    result_string = ''.join(list_with_char_removed)
+    sad = result_string.replace(" ", "")
+    return sad
+def iterative_levenshtein(s, t, costs=(1, 1, 1)):
+    """ 
+        iterative_levenshtein(s, t) -> ldist
+        ldist is the Levenshtein distance between the strings 
+        s and t.
+        For all i and j, dist[i,j] will contain the Levenshtein 
+        distance between the first i characters of s and the 
+        first j characters of t
+        
+        costs: a tuple or a list with three integers (d, i, s)
+               where d defines the costs for a deletion
+                     i defines the costs for an insertion and
+                     s defines the costs for a substitution
+    """
+    rows = len(s)+1
+    cols = len(t)+1
+    deletes, inserts, substitutes = costs
+    
+    dist = [[0 for x in range(cols)] for x in range(rows)]
+    # source prefixes can be transformed into empty strings 
+    # by deletions:
+    for row in range(1, rows):
+        dist[row][0] = row * deletes
+    # target prefixes can be created from an empty source string
+    # by inserting the characters
+    for col in range(1, cols):
+        dist[0][col] = col * inserts
+        
+    for col in range(1, cols):
+        for row in range(1, rows):
+            if s[row-1] == t[col-1]:
+                cost = 0
+            else:
+                cost = substitutes
+            dist[row][col] = min(dist[row-1][col] + deletes,
+                                 dist[row][col-1] + inserts,
+                                 dist[row-1][col-1] + cost) # substitution
+    for r in range(rows):
+        print(dist[r])
+    
+ 
+    return dist[row][col]
+
+def remove_whitespace(text):
+    text = text.replace(" ","")
+    return text
 
 def More_Gray(gamma,image) : #make picture more clearly
     gamma1 = gamma
@@ -104,12 +160,14 @@ def main(argv) :
                 roi = image[y:y+h, x:x+w]
                 cv2.imwrite( str(w*h) + ".png" , roi)
                 f.write(text_from_image_file( str(w*h) + ".png",'tha'))
-                line = f.readline()
-                if(line.find(strA1) > 0 or line.find(strA2) > 0 ) :
-                    cv2.rectangle(image,(x,y),(x+w,y+h),(0,0,255),2)
+                datalists.append(text_from_image_file( str(w*h) + ".png",'tha'))
+                # line = f.readline()
+                # if(line.find(strA1) > 0 or line.find(strA2) > 0 ) :
+                    # cv2.rectangle(image,(x,y),(x+w,y+h),(0,0,255),2)
                 os.remove( str(w*h) + ".png")
-    Spell_checker(fname)
-    cv2.show("image",image)
+    # Spell_checker(fname)
+    # cv2.show("image",image)
+    print(datalists)
     # os.remove("OutputImg.txt")
     # os.remove("temp.txt")
 
