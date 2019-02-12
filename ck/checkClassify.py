@@ -154,6 +154,7 @@ def main(argv) :
                 cv2.imwrite( str(w*h) +".png" , CropImg)
                 temp_v = text_from_image_file( str(w*h) + ".png",'tha')
                 datalists = datalists + temp_v
+            os.remove( str(w*h) + ".png")
             # roi = imutils.resize(roi, height=300)
             # cv2.imwrite( str(w*h) +".png" , roi)
             # # filter algo
@@ -168,10 +169,10 @@ def main(argv) :
             # if(len(contours) == 1) :
                 # temp_v = text_from_image_file( str(w*h) + ".png",'tha')
                 # datalists = datalists + temp_v
-            # os.remove( str(w*h) + ".png")
+            
     # cv2.imshow("image",image)
     # cv2.waitKey(0)
-    print(datalists)
+    # print(datalists)
     isEatingBefore = False
     _isEatBreakfast = False
     _isEatLunch = False
@@ -195,7 +196,7 @@ def main(argv) :
             if iterative_levenshtein(data,txt) <= 2 and idx == 6 :
                 isEatingBefore = False
                 _isEatBreakfast = True
-            if iterative_levenshtein(data,txt) <= 3 and idx == 7 :
+            if iterative_levenshtein(data,txt) <= 2 and idx == 7 :
                 isEatingBefore = False
                 _isEatBreakfast = True
 
