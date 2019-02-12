@@ -94,9 +94,6 @@ def text_from_image_file(image_name,lang):
         
         if len(''.join(list_with_char_removed)) != 0 :
            ouput = ouput + [''.join(list_with_char_removed)]
-
-    
-
     return ouput
 
 def More_Gray(gamma,image) : #make picture more clearly
@@ -106,47 +103,6 @@ def More_Gray(gamma,image) : #make picture more clearly
         lookUpTable[0,i] = np.clip(pow(i / 255.0, gamma1) * 255.0, 0, 255)
     res = cv2.LUT(image, lookUpTable)
     return res
-
-def Spell_checker(name):
-    f = open(name + ".txt")
-    
-    isEatBefore = False
-    isPeriod = bool(False)
-    isEatBreakfast = False
-    isEatLunch = False
-    isEatDinner = False
-    isEatBedTime = False
-    isRoutine = False
-    periodHour = 0
-
-    line = f.readline()
-    while line:
-        if(line.find(strB1) > 0):
-            # print ('ก่อนอาหาร')
-            isEatBefore = True
-            if(line.find(str2) >0):
-                isEatBreakfast = True
-                # print('เช้า')
-            if(line.find(str3) >0):
-                # print('กลางวัน')
-                isEatLunch = True
-            if(line.find(str4) >0):
-                # print('เย็น')
-                isEatDinner = True
-        if(line.find(strA1) > 0 or line.find(strA2) > 0):
-            # print ('หลังอาหาร')
-            isEatBefore = False
-            if(line.find(str2) >0):
-                # print('เช้า')
-                isEatBreakfast = True
-            if(line.find(str3) >0):
-                # print('กลางวัน')
-                isEatLunch = True
-            if(line.find(str4) >0):
-                # print('เย็น')
-                isEatDinner = True
-        line = f.readline()
-    cvt_to_JSON(isPeriod, isEatBefore, isEatBreakfast, isEatLunch, isEatDinner, isEatBedTime, isRoutine, periodHour)
 
 def cvt_to_JSON(_isPeriod, _isEatBefore,_isEatBreakfast, _isEatLunch, _isEatDinner, _isEatBedTime, _isRoutine, _periodHour) :
     output = {}
@@ -184,10 +140,7 @@ def main(argv) :
                 # f.write(text_from_image_file( str(w*h) + ".png",'tha'))
                 datalists = datalists + text_from_image_file( str(w*h) + ".png",'tha')
                 # line = f.readline()
-                # if(line.find(strA1) > 0 or line.find(strA2) > 0 ) :
-                    # cv2.rectangle(image,(x,y),(x+w,y+h),(0,0,255),2)
                 os.remove( str(w*h) + ".png")
-    # Spell_checker(fname)
     # cv2.show("image",image)
 
     isEatingBefore = False
