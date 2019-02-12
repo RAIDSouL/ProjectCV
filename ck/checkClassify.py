@@ -11,7 +11,7 @@ from imutils.perspective import four_point_transform
 
 
  
-strTime = ["เช้า","กลางวัน","เย็น","ก่อนอาหาร","หลังอาหาร","หลังอาหารเช้าทันที","หลังอาหารเช้า"]
+strTime = ["เช้า","กลางวัน","เย็น","ก่อนนอน","ก่อนอาหาร","หลังอาหาร","หลังอาหารเช้าทันที","หลังอาหารเช้า"]
 
 datalists = []
 
@@ -58,7 +58,6 @@ def iterative_levenshtein(s, t, costs=(1, 1, 1)):
     #     print(dist[r])
     
     return dist[row][col]
-
 
 def tsplit(string, delimiters):
     """Behaves str.split but supports multiple delimiters."""
@@ -107,7 +106,7 @@ def cvt_to_JSON(_isPeriod, _isEatBefore,_isEatBreakfast, _isEatLunch, _isEatDinn
     output = {}
     output["isPeriod"] = _isPeriod
     data = {}
-    data["isEatBefore"] = _isEatBefore
+    data["isEatingBefore"] = _isEatBefore
     data["isEatBreakfast"] = _isEatBreakfast
     data["isEatLunch"] = _isEatLunch
     data["isEatDinner"] = _isEatDinner
@@ -123,7 +122,7 @@ def main(argv) :
     gray = More_Gray(3,gray) #make picture more clear
     blurred = cv2.GaussianBlur(gray, (7 , 7), 0)
     edged = cv2.Canny(blurred, 50, 200, 255)
-    kernel = np.ones((3,8),np.uint8)
+    kernel = np.ones((3,15),np.uint8)
     dilation = cv2.dilate(edged,kernel,iterations = 1)
     contourmask,contours,hierarchy = cv2.findContours(dilation,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
     contours = sorted(contours, key=cv2.contourArea, reverse=True)
@@ -137,20 +136,41 @@ def main(argv) :
         x, y, w, h = cv2.boundingRect(cnt)
         if(w * h > 500) :
             roi = image[y:y+h, x:x+w]
-            roi = imutils.resize(roi, height=300)
+            # cv2.rectangle(image,(x,y),(x+w,y+h),(0,0,255),2)
+            roi = image[y:y+h, x:x+w]
+            roi = imutils.resize(roi, height=100)
             cv2.imwrite( str(w*h) +".png" , roi)
-            # filter algo
-            filter_img = cv2.imread(str(w*h) + ".png")
-            filter_img = imutils.resize(filter_img, height=300)
-            hsv = cv2.cvtColor(filter_img, cv2.COLOR_BGR2HSV)
+
+            filterImg = cv2.imread(str(w * h) + ".png")
+            # cv2.imshow("test" , filterImg)
+            # cv2.waitKey(0)
+
+            hsv = cv2.cvtColor(filterImg, cv2.COLOR_BGR2HSV)
             mask = cv2.inRange(hsv, lower_blue, upper_blue)
-            filter_img = imutils.resize(mask, height=10)
-            _,contours,_ = cv2.findContours(filter_img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-            if(len(contours) == 1) :
+
+            if(np.sum(mask) > 1000) :
+                CropImg = filterImg[0:100,85:500]
+                # cv2.imshow("conImg" , CropImg)
+                cv2.imwrite( str(w*h) +".png" , CropImg)
                 temp_v = text_from_image_file( str(w*h) + ".png",'tha')
                 datalists = datalists + temp_v
-            os.remove( str(w*h) + ".png")
-    # cv2.show("image",image)
+            # roi = imutils.resize(roi, height=300)
+            # cv2.imwrite( str(w*h) +".png" , roi)
+            # # filter algo
+            # filter_img = cv2.imread(str(w*h) + ".png")
+            # filter_img = imutils.resize(filter_img, height=300)
+            # hsv = cv2.cvtColor(filter_img, cv2.COLOR_BGR2HSV)
+            # mask = cv2.inRange(hsv, lower_blue, upper_blue)
+            # cv2.imshow("mask",mask)
+            # cv2.waitKey(0)
+            # filter_img = imutils.resize(mask, height=10)
+            # _,contours,_ = cv2.findContours(filter_img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+            # if(len(contours) == 1) :
+                # temp_v = text_from_image_file( str(w*h) + ".png",'tha')
+                # datalists = datalists + temp_v
+            # os.remove( str(w*h) + ".png")
+    # cv2.imshow("image",image)
+    # cv2.waitKey(0)
     print(datalists)
     isEatingBefore = False
     _isEatBreakfast = False
@@ -160,22 +180,22 @@ def main(argv) :
     # print(datalists)
     for idx,data in enumerate(strTime) :
         for txt in datalists :
-            if iterative_levenshtein(data,txt) <= 3 and idx == 0 :
+            if iterative_levenshtein(data,txt) <= 2 and idx == 0 :
                 _isEatBreakfast = True
-            if iterative_levenshtein(data,txt) <= 3 and idx == 1 :
+            if iterative_levenshtein(data,txt) <= 2 and idx == 1 :
                 _isEatLunch = True
-            if iterative_levenshtein(data,txt) <= 3 and idx == 2 :
+            if iterative_levenshtein(data,txt) <= 2 and idx == 2 :
                 _isEatDinner = True
-            if iterative_levenshtein(data,txt) <= 3 and idx == 3 :
+            if iterative_levenshtein(data,txt) <= 2 and idx == 3 :
                 _isEatBedTime = True
-            if iterative_levenshtein(data,txt) <= 3 and idx == 4 :
+            if iterative_levenshtein(data,txt) <= 2 and idx == 4 :
                 isEatingBefore = True
-            if iterative_levenshtein(data,txt) <= 3 and idx == 5 :
+            if iterative_levenshtein(data,txt) <= 2 and idx == 5 :
                 isEatingBefore = False
-            if iterative_levenshtein(data,txt) <= 3 and idx == 5 :
+            if iterative_levenshtein(data,txt) <= 2 and idx == 6 :
                 isEatingBefore = False
                 _isEatBreakfast = True
-            if iterative_levenshtein(data,txt) <= 3 and idx == 6 :
+            if iterative_levenshtein(data,txt) <= 3 and idx == 7 :
                 isEatingBefore = False
                 _isEatBreakfast = True
 

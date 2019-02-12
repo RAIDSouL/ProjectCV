@@ -11,7 +11,7 @@ from imutils.perspective import four_point_transform
 
 
  
-strTime = ["เช้า","กลางวัน","เย็น","ก่อนอาหาร","หลังอาหาร","หลังอาหารเช้าทันที","หลังอาหารเช้า"]
+strTime = ["เช้า","กลางวัน","เย็น","ก่อนนอน","ก่อนอาหาร","หลังอาหาร","หลังอาหารเช้าทันที","หลังอาหารเช้า"]
 
 datalists = []
 
@@ -59,7 +59,6 @@ def iterative_levenshtein(s, t, costs=(1, 1, 1)):
     
  
     return dist[row][col]
-
 
 def tsplit(string, delimiters):
     """Behaves str.split but supports multiple delimiters."""
@@ -141,8 +140,8 @@ def main(argv) :
                 datalists = datalists + text_from_image_file( str(w*h) + ".png",'tha')
                 # line = f.readline()
                 os.remove( str(w*h) + ".png")
-    # cv2.show("image",image)
 
+    # cv2.show("image",image)
     isEatingBefore = False
     _isEatBreakfast = False
     _isEatLunch = False
@@ -163,10 +162,10 @@ def main(argv) :
                 isEatingBefore = True
             if iterative_levenshtein(data,txt) <= 2 and idx == 5 :
                 isEatingBefore = False
-            if iterative_levenshtein(data,txt) <= 2 and idx == 5 :
+            if iterative_levenshtein(data,txt) <= 2 and idx == 6 :
                 isEatingBefore = False
                 _isEatBreakfast = True
-            if iterative_levenshtein(data,txt) <= 2 and idx == 6 :
+            if iterative_levenshtein(data,txt) <= 2 and idx == 7 :
                 isEatingBefore = False
                 _isEatBreakfast = True
 
