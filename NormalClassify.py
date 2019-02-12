@@ -9,20 +9,14 @@ import subprocess
 from imutils import contours
 from imutils.perspective import four_point_transform
 
+
+ 
+strTime = ["เช้า","กลางวัน","เย็น","ก่อนอาหาร","หลังอาหาร","หลังอาหารเช้าทันที","หลังอาหารเช้า"]
+
 datalists = []
 
 pattern = re.compile(r"[^\u0E00-\u0E7Fa-zA-Z' ]|^'|'$|''")
 
-def text_from_image_file(image_name,lang):
-    output_name = "OutputImg"
-    return_code = subprocess.call(['tesseract',image_name,output_name,'-l',lang,'-c','preserve_interword_spaces=1 --tessdata-dir ./tessdata_best/'],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    d = open(output_name+'.txt','r',encoding='utf-8')
-    temp = d.read()
-    char_to_remove = re.findall(pattern, temp)
-    list_with_char_removed = [char for char in temp if not char in char_to_remove]
-    result_string = ''.join(list_with_char_removed)
-    sad = result_string.replace(" ", "")
-    return sad
 def iterative_levenshtein(s, t, costs=(1, 1, 1)):
     """ 
         iterative_levenshtein(s, t) -> ldist
@@ -60,15 +54,50 @@ def iterative_levenshtein(s, t, costs=(1, 1, 1)):
             dist[row][col] = min(dist[row-1][col] + deletes,
                                  dist[row][col-1] + inserts,
                                  dist[row-1][col-1] + cost) # substitution
-    for r in range(rows):
-        print(dist[r])
+    # for r in range(rows):
+    #     print(dist[r])
     
  
     return dist[row][col]
 
-def remove_whitespace(text):
-    text = text.replace(" ","")
-    return text
+
+def tsplit(string, delimiters):
+    """Behaves str.split but supports multiple delimiters."""
+    
+    delimiters = tuple(delimiters)
+    stack = [string,]
+    
+    for delimiter in delimiters:
+        for i, substring in enumerate(stack):
+            substack = substring.split(delimiter)
+            stack.pop(i)
+            for j, _substring in enumerate(substack):
+                stack.insert(i+j, _substring)
+            
+    return stack
+
+def text_from_image_file(image_name,lang):
+    output_name = "OutputImg"
+    return_code = subprocess.call(['tesseract',image_name,output_name,'-l',lang,'-c','preserve_interword_spaces=1 --tessdata-dir ./tessdata_best/'],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    d = open(output_name+'.txt','r',encoding='utf-8')
+    str_read = d.read()
+    # char_to_remove = temp.split()
+    # char_to_remove = re.findall(pattern, temp)
+    
+    temp = tsplit(str_read,(',', '/', '-', '=',' '))
+    ouput = []
+    for idx in temp :
+        char_to_remove = re.findall(pattern, idx)
+
+        list_with_char_removed = [char for char in idx if not char in char_to_remove]
+
+        
+        if len(''.join(list_with_char_removed)) != 0 :
+           ouput = ouput + [''.join(list_with_char_removed)]
+
+    
+
+    return ouput
 
 def More_Gray(gamma,image) : #make picture more clearly
     gamma1 = gamma
@@ -148,7 +177,7 @@ def main(argv) :
     with open(fname+".txt","w") as f:
         for cnt in contours[1:] :
             x, y, w, h = cv2.boundingRect(cnt)
-            if (h * w > 500) :
+            if (h / w < 0.7 and h * w > 500 ) :
                 # cv2.rectangle(image,(x,y),(x+w,y+h),(0,0,255),2)
                 roi = image[y:y+h, x:x+w]
                 cv2.imwrite( str(w*h) + ".png" , roi)
