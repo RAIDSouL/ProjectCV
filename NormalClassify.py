@@ -134,7 +134,7 @@ def cvt_to_JSON(_isPeriod, _isEatBefore,_isEatBreakfast, _isEatLunch, _isEatDinn
 
 def main(argv) :
     image = cv2.imread(argv[0]) 
-    image = imutils.resize(image, height=500)
+    image = imutils.resize(image, height=700)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     gray = More_Gray(3,gray) #make picture more clear
     blurred = cv2.GaussianBlur(gray, (7 , 7), 0)
@@ -144,17 +144,54 @@ def main(argv) :
     contourmask,contours,hierarchy = cv2.findContours(dilation,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
     contours = sorted(contours, key=cv2.contourArea, reverse=True)
     fname = argv[0].split(".")[0]
-     
+    datalists = []
     with open(fname+".txt","w") as f:
         for cnt in contours[1:] :
             x, y, w, h = cv2.boundingRect(cnt)
             if (h * w > 500) :
                 # cv2.rectangle(image,(x,y),(x+w,y+h),(0,0,255),2)
                 roi = image[y:y+h, x:x+w]
-                cv2.imwrite( str(w*h) +"a"+".png" , roi)
-                
+                cv2.imwrite( str(w*h) + ".png" , roi)
                 # f.write(text_from_image_file( str(w*h) + ".png",'tha'))
-                # datalists.append(text_from_image_file( str(w*h) + ".png",'tha'))
-                # os.remove( str(w*h) + ".png")
+                datalists = datalists + text_from_image_file( str(w*h) + ".png",'tha')
+                # line = f.readline()
+                # if(line.find(strA1) > 0 or line.find(strA2) > 0 ) :
+                    # cv2.rectangle(image,(x,y),(x+w,y+h),(0,0,255),2)
+                os.remove( str(w*h) + ".png")
+    # Spell_checker(fname)
+    # cv2.show("image",image)
+
+    isEatingBefore = False
+    _isEatBreakfast = False
+    _isEatLunch = False
+    _isEatDinner = False
+    _isEatBedTime =False 
+    # print(datalists)
+    for idx,data in enumerate(strTime) :
+        for txt in datalists :
+            if iterative_levenshtein(data,txt) <= 2 and idx == 0 :
+                _isEatBreakfast = True
+            if iterative_levenshtein(data,txt) <= 2 and idx == 1 :
+                _isEatLunch = True
+            if iterative_levenshtein(data,txt) <= 2 and idx == 2 :
+                _isEatDinner = True
+            if iterative_levenshtein(data,txt) <= 2 and idx == 3 :
+                _isEatBedTime = True
+            if iterative_levenshtein(data,txt) <= 2 and idx == 4 :
+                isEatingBefore = True
+            if iterative_levenshtein(data,txt) <= 2 and idx == 5 :
+                isEatingBefore = False
+            if iterative_levenshtein(data,txt) <= 2 and idx == 5 :
+                isEatingBefore = False
+                _isEatBreakfast = True
+            if iterative_levenshtein(data,txt) <= 2 and idx == 6 :
+                isEatingBefore = False
+                _isEatBreakfast = True
+
+    cvt_to_JSON(False, isEatingBefore,_isEatBreakfast, _isEatLunch, _isEatDinner, _isEatBedTime, False, "_periodHour")
+
+
+    # os.remove("OutputImg.txt")
+    # os.remove("temp.txt")
 
 main(sys.argv[1:])
