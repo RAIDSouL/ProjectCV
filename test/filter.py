@@ -8,7 +8,7 @@ from random import randint
 lower_blue = np.array([115,50,50])
 upper_blue = np.array([130,255,255])
 # for idx in range(1,22):
-im = cv2.imread("3276"+".png")
+im = cv2.imread("3157"+".png")
 im = imutils.resize(im, height=300)
 hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
 mask = cv2.inRange(hsv, lower_blue, upper_blue)

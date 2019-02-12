@@ -132,24 +132,25 @@ def main(argv) :
     #filter
     lower_blue = np.array([115,50,50])
     upper_blue = np.array([130,255,255])
-    with open(fname+".txt","w") as f:
-        for cnt in contours[1:] :
-            x, y, w, h = cv2.boundingRect(cnt)
-            if(w * h > 500) :
-                roi = image[y:y+h, x:x+w]
-                cv2.imwrite( "temp//" + str(w*h) +".png" , roi)
-                # filter algo
-                filter_img = cv2.imread(str(w*h) + ".png")
-                filter_img = imutils.resize(filter_img, height=300)
-                hsv = cv2.cvtColor(filter_img, cv2.COLOR_BGR2HSV)
-                mask = cv2.inRange(hsv, lower_blue, upper_blue)
-                filter_img = imutils(mask, height=10)
-                _,contours,_ = cv2.findContours(filter_img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-                if(len(contours) == 1) :
-                    datalists.append(text_from_image_file( str(w*h) + ".png",'tha'))
-                os.remove( str(w*h) + ".png")
-    # cv2.show("image",image)
 
+    for cnt in contours[1:] :
+        x, y, w, h = cv2.boundingRect(cnt)
+        if(w * h > 500 and w > 50 and h > 20) :
+            roi = image[y:y+h, x:x+w]
+            roi = imutils.resize(roi, height=300)
+            cv2.imwrite( str(w*h) +".png" , roi)
+            # filter algo
+            filter_img = cv2.imread(str(w*h) + ".png")
+            filter_img = imutils.resize(filter_img, height=300)
+            hsv = cv2.cvtColor(filter_img, cv2.COLOR_BGR2HSV)
+            mask = cv2.inRange(hsv, lower_blue, upper_blue)
+            filter_img = imutils.resize(mask, height=10)
+            _,contours,_ = cv2.findContours(filter_img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+            if(len(contours) == 1) :
+                temp_v = text_from_image_file( str(w*h) + ".png",'tha')
+                datalists = datalists + temp_v
+            os.remove( str(w*h) + ".png")
+    # cv2.show("image",image)
     isEatingBefore = False
     _isEatBreakfast = False
     _isEatLunch = False
@@ -158,22 +159,22 @@ def main(argv) :
     # print(datalists)
     for idx,data in enumerate(strTime) :
         for txt in datalists :
-            if iterative_levenshtein(data,txt) <= 2 and idx == 0 :
+            if iterative_levenshtein(data,txt) <= 3 and idx == 0 :
                 _isEatBreakfast = True
-            if iterative_levenshtein(data,txt) <= 2 and idx == 1 :
+            if iterative_levenshtein(data,txt) <= 3 and idx == 1 :
                 _isEatLunch = True
-            if iterative_levenshtein(data,txt) <= 2 and idx == 2 :
+            if iterative_levenshtein(data,txt) <= 3 and idx == 2 :
                 _isEatDinner = True
-            if iterative_levenshtein(data,txt) <= 2 and idx == 3 :
+            if iterative_levenshtein(data,txt) <= 3 and idx == 3 :
                 _isEatBedTime = True
-            if iterative_levenshtein(data,txt) <= 2 and idx == 4 :
+            if iterative_levenshtein(data,txt) <= 3 and idx == 4 :
                 isEatingBefore = True
-            if iterative_levenshtein(data,txt) <= 2 and idx == 5 :
+            if iterative_levenshtein(data,txt) <= 3 and idx == 5 :
                 isEatingBefore = False
-            if iterative_levenshtein(data,txt) <= 2 and idx == 5 :
+            if iterative_levenshtein(data,txt) <= 3 and idx == 5 :
                 isEatingBefore = False
                 _isEatBreakfast = True
-            if iterative_levenshtein(data,txt) <= 2 and idx == 6 :
+            if iterative_levenshtein(data,txt) <= 3 and idx == 6 :
                 isEatingBefore = False
                 _isEatBreakfast = True
 
