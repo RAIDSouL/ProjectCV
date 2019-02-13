@@ -101,7 +101,7 @@ upper_blue = np.array([140,255,255])
 
 # image = cv2.imread("3"+".png")
 
-image = cv2.imread("333"+".jpg")
+image = cv2.imread("20190213_052347"+".jpg")
 image = imutils.resize(image, height=500)
 recim = image.copy()
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)

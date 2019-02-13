@@ -142,14 +142,14 @@ def main(argv) :
             cv2.imwrite( str(w*h) +".png" , roi)
 
             filterImg = cv2.imread(str(w * h) + ".png")
-            # cv2.imshow("test" , filterImg)
-            # cv2.waitKey(0)
+            cv2.imshow("test" , filterImg)
+            cv2.waitKey(0)
 
             hsv = cv2.cvtColor(filterImg, cv2.COLOR_BGR2HSV)
             mask = cv2.inRange(hsv, lower_blue, upper_blue)
 
             if(np.sum(mask) > 1000) :
-                CropImg = filterImg[0:100,85:500]
+                # CropImg = filterImg[0:100,85:500]
                 # cv2.imshow("conImg" , CropImg)
                 cv2.imwrite( str(w*h) +".png" , CropImg)
                 temp_v = text_from_image_file( str(w*h) + ".png",'tha')
